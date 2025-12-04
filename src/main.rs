@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 fn consume_digits(input:&[u8])->(u64,&[u8]){
     let mut sum = 0u64;
 
@@ -40,122 +42,85 @@ fn iter_pairs(mut input:&[u8],mut f:impl FnMut((u64,u64))){
     }
 }
 
-// fn is_repeated(mut n:u64)->bool{
-//     let mut digits = Vec::new();
-//     while n!=0{
-//         digits.push(n%10);
-//         n=n/10;
-//     }
-//     if digits.len()%2!=0{
-//         return false;
-//     }
 
-//     let half = (digits.len()/2) as usize;
-//     for (a,b) in (&digits[..half]).iter().zip(&digits[half..]){
-//         if a!=b{
-//             return false
-//         }
-//     }
 
-//     true
-// }
-
-// fn repeated_in_range(start:u64,end:u64)->u64{
-//     assert!(end>=start);
-
+// fn get_half_tens(num:u64)->u64{
 //     let mut tens_count = 0;
 //     let mut tens = 1;
-//     while tens<=start {
+//     while tens<=num {
 //         tens_count+=1;
 //         tens*=10;
 //     }
 
-//     if end/start >= 10 {
-//         let first = repeated_in_range(start,tens-1);
-//         let second = repeated_in_range(tens,end);
-//         return first+second;
-//     }
-
+//     let half_count =tens_count/2+tens_count%2;
 //     let mut half_tens = 1;
-//     for _ in 0..tens_count/2{
+//     for _ in 0..half_count{
 //         half_tens*=10;
 //     }
-//     let top = start/half_tens;
-//     let mut ans = 0;
 
-//     if start%half_tens==top {
-//         ans+=1;
-//     }
-//     if end%half_tens==end/half_tens {
-//         ans+=1;
+//     half_tens
+// }
+
+// fn get_tens(num:u64)->u64{
+//     let mut tens = 1;
+//     while tens<=num {
+//         tens*=10;
 //     }
 
-//     ans+=end/half_tens-start/half_tens - 1;
-//     ans
+//     tens
 // }
 
 
 
-fn get_half_tens(num:u64)->u64{
-    let mut tens_count = 0;
-    let mut tens = 1;
-    while tens<=num {
-        tens_count+=1;
-        tens*=10;
-    }
+// fn sum_repeated(start:u64,end:u64)->u64{
+//     assert!(end>=start);
 
-    let half_count =tens_count/2+tens_count%2;
-    let mut half_tens = 1;
-    for _ in 0..half_count{
-        half_tens*=10;
-    }
+//     let start_half = get_half_tens(start);
 
-    half_tens
-}
+//     let mut ans = 0;
 
-fn get_tens(num:u64)->u64{
-;    let mut tens = 1;
-    while tens<=num {
-        tens*=10;
-    }
+//     let top_start = (start)/start_half;
+//     let top_end = (end)/start_half;
 
-    tens
-}
-
-fn get_tens_and_count(num:u64)->(u64,u8){
-    let mut tens_count = 0;
-    let mut tens = 1;
-    while tens<=num {
-        tens_count+=1;
-        tens*=10;
-    }
-
-    (tens,tens_count)
-}
+//     // println!("sub iter range is {top_start}:{top_end}");
 
 
-fn sum_repeated(start:u64,end:u64)->u64{
+//     for i in top_start..=top_end{
+//         let num = i*(1+get_tens(i));
+//         if num<=end && num>=start{
+//             // print!(" [ has {i}{i} which is {num} ] ");
+//             ans+=num;
+//         }
+//     }
+
+//     ans
+// }
+
+fn sum_all_repeated(start:u64,end:u64)->u64{
     assert!(end>=start);
+    let mut found = HashSet::new();
+    let mut i = 0;
+    let mut tens = 1;
 
-    let start_half = get_half_tens(start);
+    loop {
+        i+=1;
+        if i == tens {
+            tens = tens*10;
+        }
 
-    let mut ans = 0;
+        let mut try_num = i*(1+tens);
+        if try_num > end {
+            return found.into_iter().sum();
+        }
 
-    let top_start = (start)/start_half;
-    let top_end = (end)/start_half;
+        while try_num<=end{
+            if try_num >= start {
+                found.insert(try_num);
+            }
 
-    // println!("sub iter range is {top_start}:{top_end}");
-
-
-    for i in top_start..=top_end{
-        let num = i*(1+get_tens(i));
-        if num<=end && num>=start{
-            // print!(" [ has {i}{i} which is {num} ] ");
-            ans+=num;
+            try_num = try_num*tens+i;
         }
     }
-
-    ans
 }
 
 fn main() {
@@ -165,7 +130,7 @@ fn main() {
 
     iter_pairs(input,|(a,b)| {
         // println!("{a}-{b}");
-        let s = sum_repeated(a,b);
+        let s = sum_all_repeated(a,b);
         println!("{a}-{b} has {s}", );
         sum+=s;
 
