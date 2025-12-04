@@ -114,7 +114,7 @@ fn get_half_tens(num:u64)->u64{
 }
 
 fn get_tens(num:u64)->u64{
-    let mut tens = 1;
+;    let mut tens = 1;
     while tens<=num {
         tens*=10;
     }
@@ -138,28 +138,19 @@ fn sum_repeated(start:u64,end:u64)->u64{
     assert!(end>=start);
 
     let start_half = get_half_tens(start);
-    let end_half = get_half_tens(end);
-    
-    if start_half<end_half{
-        let split_end = get_tens(start);
-        let split_start = split_end-1;
-
-        println!("spliting {start} - {end} into {start}-{split_start} {split_end}-{end}");
-        return sum_repeated(start,split_start) + sum_repeated(split_end,end);
-    }
 
     let mut ans = 0;
 
-    let top_start = start/start_half;
-    let top_end = end/end_half;
+    let top_start = (start)/start_half;
+    let top_end = (end)/start_half;
 
+    // println!("sub iter range is {top_start}:{top_end}");
 
-    println!("range for {start} - {end} is [{top_start} {top_end}]");
 
     for i in top_start..=top_end{
         let num = i*(1+get_tens(i));
         if num<=end && num>=start{
-            print!(" [ has {i}{i} which is {num} ] ");
+            // print!(" [ has {i}{i} which is {num} ] ");
             ans+=num;
         }
     }
